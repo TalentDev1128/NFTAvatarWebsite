@@ -19,14 +19,28 @@ contract DungeonsAndDragonsCharacter is ERC721, VRFConsumerBase, Ownable {
     address public LinkToken;
     // rinkeby: 0x01BE23585060835E02B77ef475b0Cc51aA1e0709a
 
+    uint256 constant MINT_LIMIT = 3;
+
+    uint256 constant HATS_LEN = 33;
+    uint256 constant EYES_LEN = 25;
+    uint256 constant FACIAL_HAIRS_LEN = 2;
+    uint256 constant EARRINGS_LEN = 4;
+    uint256 constant MOUTHS_LEN = 15;
+    uint256 constant EXTRAS_LEN = 1;
+    uint256 constant SHIRTS_LEN = 11;
+    uint256 constant SKINS_LEN = 6;
+    uint256 constant BACKGROUNDS_LEN = 7;
+
     struct Character {
-        uint256 strength;
-        uint256 dexterity;
-        uint256 constitution;
-        uint256 intelligence;
-        uint256 wisdom;
-        uint256 charisma;
-        uint256 experience;
+        uint256 hat;
+        uint256 eye;
+        uint256 facial_hair;
+        uint256 earring;
+        uint256 mouth;
+        uint256 extra;
+        uint256 shirt;
+        uint256 skin;
+        uint256 background;
         string name;
     }
 
@@ -35,6 +49,7 @@ contract DungeonsAndDragonsCharacter is ERC721, VRFConsumerBase, Ownable {
     mapping(bytes32 => string) requestToCharacterName;
     mapping(bytes32 => address) requestToSender;
     mapping(bytes32 => uint256) requestToTokenId;
+    mapping(address => uint256) senderToNumberOfMint;
 
     /**
      * Constructor inherits VRFConsumerBase
@@ -62,9 +77,14 @@ contract DungeonsAndDragonsCharacter is ERC721, VRFConsumerBase, Ownable {
             LINK.balanceOf(address(this)) >= fee,
             "Not enough LINK - fill contract with faucet"
         );
+        require(
+            senderToNumberOfMint[msg.sender] < MINT_LIMIT,
+            "Maximum mint count is reached, can not try mint any more"
+        );
         bytes32 requestId = requestRandomness(keyHash, fee);
         requestToCharacterName[requestId] = name;
         requestToSender[requestId] = msg.sender;
+        senderToNumberOfMint[msg.sender]++;
         return requestId;
     }
 
@@ -85,85 +105,25 @@ contract DungeonsAndDragonsCharacter is ERC721, VRFConsumerBase, Ownable {
         override
     {
         uint256 newId = characters.length;
-        uint256 strength = (randomNumber % 100);
-        uint256 dexterity = ((randomNumber % 10000) / 100 );
-        uint256 constitution = ((randomNumber % 1000000) / 10000 );
-        uint256 intelligence = ((randomNumber % 100000000) / 1000000 );
-        uint256 wisdom = ((randomNumber % 10000000000) / 100000000 );
-        uint256 charisma = ((randomNumber % 1000000000000) / 10000000000);
-        uint256 experience = 0;
 
         characters.push(
             Character(
-                strength,
-                dexterity,
-                constitution,
-                intelligence,
-                wisdom,
-                charisma,
-                experience,
+                randomNumber % HATS_LEN,
+                randomNumber % EYES_LEN,
+                randomNumber % FACIAL_HAIRS_LEN,
+                randomNumber % EARRINGS_LEN,
+                randomNumber % MOUTHS_LEN,
+                randomNumber % EXTRAS_LEN,
+                randomNumber % SHIRTS_LEN,
+                randomNumber % SKINS_LEN,
+                randomNumber % BACKGROUNDS_LEN,
                 requestToCharacterName[requestId]
             )
         );
         _safeMint(requestToSender[requestId], newId);
     }
 
-    function getLevel(uint256 tokenId) public view returns (uint256) {
-        return sqrt(characters[tokenId].experience);
-    }
-
     function getNumberOfCharacters() public view returns (uint256) {
-        return characters.length; 
-    }
-
-    function getCharacterOverView(uint256 tokenId)
-        public
-        view
-        returns (
-            string memory,
-            uint256,
-            uint256,
-            uint256
-        )
-    {
-        return (
-            characters[tokenId].name,
-            characters[tokenId].strength + characters[tokenId].dexterity + characters[tokenId].constitution + characters[tokenId].intelligence + characters[tokenId].wisdom + characters[tokenId].charisma,
-            getLevel(tokenId),
-            characters[tokenId].experience
-        );
-    }
-
-    function getCharacterStats(uint256 tokenId)
-        public
-        view
-        returns (
-            uint256,
-            uint256,
-            uint256,
-            uint256,
-            uint256,
-            uint256,
-            uint256
-        )
-    {
-        return (
-            characters[tokenId].strength,
-            characters[tokenId].dexterity,
-            characters[tokenId].constitution,
-            characters[tokenId].intelligence,
-            characters[tokenId].wisdom,
-            characters[tokenId].charisma,
-            characters[tokenId].experience
-        );
-    }
-
-    function sqrt(uint256 x) internal view returns (uint256 y) {
-        uint256 z = (x + 1) / 2;
-        y = x;
-        while (z < y) {
-            y = z;
-            z = (x / z + z) / 2;
-        }
+        return characters.length;
     }
 }
