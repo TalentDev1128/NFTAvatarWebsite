@@ -42,7 +42,7 @@ export function GetTokenURI(tokenId: any) {
 
 export function useIncrement() {
   // @ts-ignore
-  const { state, send } = useContractFunction(contract, "requestNewRandomCharacter", {});
+  const { state, send } = useContractFunction(contract, "requestNewCharacter", {});
   return { state, send };
 }
 

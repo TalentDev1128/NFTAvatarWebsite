@@ -10,8 +10,8 @@ export async function getMetaData() {
 
 async function getPairs() {
   try {
-    // let response = await fetch('http://localhost:3000/tokenId_cid_pair.json');
-    let response = await fetch('https://blootavatar.web.app/tokenId_cid_pair.json');
+    let response = await fetch('http://localhost:3000/tokenId_cid_pair.json');
+    // let response = await fetch('https://blootavatar.web.app/tokenId_cid_pair.json');
     let responseJson = await response.json();
     return responseJson.pairs;
    } catch(error) {

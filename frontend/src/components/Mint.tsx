@@ -19,8 +19,9 @@ export default function Mint() {
 
   const { account } = useEthers();
   const balance = GetBalance(account);
-  const { state, send: safeMint } = useContractMethod("requestNewRandomCharacter");
+  const { state, send: safeMint } = useContractMethod("requestNewCharacter");
   const [myBalance, setMyBalance] = useState(0);
+  const [isDonate, setIsDonate] = useState(false);
 
   useEffect(() => {
     setMyBalance(balance ? balance.toNumber() : 0);
@@ -28,9 +29,18 @@ export default function Mint() {
 
   async function handleMint() {
     const metadata = await getMetaData();
-    safeMint(balance, metadata, {
-      value: utils.parseEther("0.001"),
-    });
+    console.log(isDonate);
+    if (isDonate) {
+      safeMint(balance, metadata, isDonate, {
+        value: utils.parseEther("0.001"),
+      });
+    } else {
+      safeMint(balance, metadata, isDonate);
+    }
+  }
+
+  function handleDonate(checked: boolean) {
+    setIsDonate(checked);
   }
 
   return (
@@ -45,13 +55,13 @@ export default function Mint() {
           <Text></Text>
         )
       }
-      <Text color="white" fontSize="6xl">
-        {account ? '' : 'Not found your NFT'}
+      <Text color="white" fontSize="4xl">
+        {account ? (myBalance ? '' : 'Not found your NFT') : 'Wallet not connected'}
       </Text>
       <Button colorScheme="teal" size="lg" marginTop="5" onClick={handleMint} disabled={account ? false : true}>
         Mint Avatar
       </Button>
-      <Checkbox color="white" marginTop="10" disabled={account ? false : true}>Donate 0.01eth</Checkbox>
+      <Checkbox color="white" marginTop="10" isDisabled={account ? false : true} onChange={(e) => handleDonate(e.target.checked)}>Donate 0.01eth</Checkbox>
     </Flex>
   );
 }
