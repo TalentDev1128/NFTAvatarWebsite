@@ -9,6 +9,7 @@ import NFTImage from "./NFTImage"
 import { utils } from "ethers";
 import { useEthers } from "@usedapp/core";
 import {
+  GetTotalSupply,
   GetBalance,
   useContractMethod
 } from "../hooks";
@@ -19,7 +20,8 @@ export default function Mint() {
 
   const { account } = useEthers();
   const balance = GetBalance(account);
-  const { state, send: safeMint } = useContractMethod("requestNewCharacter");
+  const totalSupply = GetTotalSupply();
+  const { state, send: safeMint } = useContractMethod("requestNewBloot");
   const [myBalance, setMyBalance] = useState(0);
   const [isDonate, setIsDonate] = useState(false);
 
@@ -29,13 +31,12 @@ export default function Mint() {
 
   async function handleMint() {
     const metadata = await getMetaData();
-    console.log(isDonate);
     if (isDonate) {
-      safeMint(balance, metadata, isDonate, {
+      safeMint(totalSupply, metadata, {
         value: utils.parseEther("0.001"),
       });
     } else {
-      safeMint(balance, metadata, isDonate);
+      safeMint(totalSupply, metadata);
     }
   }
 

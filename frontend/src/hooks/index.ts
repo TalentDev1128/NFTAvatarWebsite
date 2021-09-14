@@ -7,6 +7,17 @@ import { simpleContractAddress } from "../contracts";
 const simpleContractInterface = new ethers.utils.Interface(simpleContractAbi);
 const contract = new Contract(simpleContractAddress, simpleContractInterface);
 
+export function GetTotalSupply() {
+  const [balance]: any =
+    useContractCall({
+      abi: simpleContractInterface,
+      address: simpleContractAddress,
+      method: "totalSupply",
+      args: [],
+    }) ?? [];
+  return balance;
+}
+
 export function GetBalance(owner: any) {
   const [balance]: any =
     useContractCall({
@@ -38,18 +49,6 @@ export function GetTokenURI(tokenId: any) {
       args: [tokenId],
     }) ?? [];
   return tokenURI;
-}
-
-export function useIncrement() {
-  // @ts-ignore
-  const { state, send } = useContractFunction(contract, "requestNewCharacter", {});
-  return { state, send };
-}
-
-export function useSetCount() {
-  // @ts-ignore
-  const { state, send } = useContractFunction(contract, "setCount", {});
-  return { state, send };
 }
 
 export function useContractMethod(methodName: string) {
