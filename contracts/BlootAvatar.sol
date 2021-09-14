@@ -10,7 +10,8 @@ contract BlootAvatar is ERC721, Ownable {
     using SafeMath for uint256;
     using Strings for string;
 
-    uint256 constant MINT_LIMIT = 10;
+    ERC721 bloot = ERC721(0x4F8730E0b32B04beaa5757e5aea3aeF970E5B613);
+    uint256 MINT_LIMIT = 5;
 
     constructor()
         public
@@ -18,19 +19,14 @@ contract BlootAvatar is ERC721, Ownable {
     {   
     }
 
-    function requestNewCharacter(
+    function requestNewBloot(
         uint256 tokenId,
-        string memory _tokenURI,
-        bool paid
+        string memory _tokenURI
     ) public payable {
-        // Set minimum donation limit
-        if (paid)
-            require(msg.value >= 0.01);
-        // Set limitation to the # of mint for each user
-        require(
-            balanceOf(msg.sender) < MINT_LIMIT,
-            "Maximum mint count is reached, can not mint any more"
-        );
+        // Require the claimer to have at least one bloot from the specified contract
+        require(bloot.balanceOf(msg.sender) >= 1, "Need at least one bloot");
+        // Set limit to no more than MINT_LIMIT times of the owned bloot
+        require(super.balanceOf(msg.sender) < bloot.balanceOf(msg.sender) * MINT_LIMIT, "Mint limit reached. Purchase more bloot");
         _safeMint(msg.sender, tokenId);
         _setTokenURI(tokenId, _tokenURI);
     }
