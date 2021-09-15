@@ -1,26 +1,47 @@
+const express = require('express');
 const fs = require('fs');
 const path = require('path');
-const csvParser = require('./csv_parser');
 const constants = require('./constants');
+const csvParser = require('./csv_parser');
+const pinData = require('./pin_data');
+
+const app = express();
 
 // This array will be populated by the generateMetaData function
 // Hence, use this array only after calling generateMetaData function.
 let relativeIds = [];
+let csvData = [];
+let traits = [];
 
-csvParser.parseCSV(function(csvData) {
-    console.log(csvData.length);
-    const traits = traitIndices(csvData);
-    console.log(traits);
-    const randomPercents = generateRandomPercent(traits.length);
-    console.log(randomPercents);
-    const donated = false;
-    const traitValueIds = generateTraitValueIds([...traits, csvData.length], randomPercents, csvData, donated);
-    console.log(traitValueIds);
-    generateMetaData([...traits, csvData.length], traitValueIds, csvData);
-    console.log(relativeIds);
+csvParser.parseCSV(function(data) {
+    csvData = [...data];
+    traits = traitIndices(csvData);
 });
 
-// calculate the indices of the trait types, like HAIRS, EYES, first column in csv
+const preMint = (donated, callback) => {
+    const randomPercents = generateRandomPercent(traits.length);
+    const traitValueIds = generateTraitValueIds([...traits, csvData.length], randomPercents, csvData, donated);
+    const tokenId = generateMetaData([...traits, csvData.length], traitValueIds, csvData);
+    pinData.pinFile(tokenId, () => {
+        pinData.pinJson((ipfsHash) => {
+            callback(ipfsHash);
+        });
+    });
+}
+
+app.get('/', (req, res) => {
+    const donated = req.query.donated || false;
+    console.log(donated);
+    preMint(donated, (ipfsHash) => {
+    console.log(ipfsHash);
+    console.log('successfully sent ipfsHash');
+    console.log('============');
+    res.json({"ipfsHash" : ipfsHash});
+    });
+});
+app.listen(process.env.PORT, () => console.log('Your app is listening on port ' + process.env.PORT));  
+
+// calculate the indices of the trait categories, like HAIRS, EYES, first column in csv
 traitIndices = data => {
     let indices = data.map((elem, idx) => elem.Total.length > 0 ? idx : '').filter(String);
     return indices;
@@ -57,31 +78,30 @@ generateTraitValueIds = (traits, randomPercents, csvData, donated) => {
 // write metadata json file, prepare relative trait indices for PSD work
 generateMetaData = (traits, traitValueIds, csvData) => {
     const metaDataFile = path.join(constants.OUTPUT_PATH, constants.METADATA_FILE);
-    // let tokenId = traitValueIds[0] - traits[0];
+    let tokenId = 0;
     let avatarJson = {};
-    avatarJson.name = "bloot";
-    avatarJson.description = "bloot elves";
     avatarJson.image = "";
     avatarJson.attributes = [];
-    
-    for (i = 1; i < traits.length - 1; i++) {
-        let relativeId = traitValueIds[i] - traits[i] - 1;
+
+    for (i = 0; i < traits.length - 1; i++) {
+        let relativeId = traitValueIds[i] - traits[i];
         relativeIds.push(relativeId);
 
         let attrJson = {};
         attrJson.trait_type = csvData[traits[i]]['Total'];
         attrJson.value = csvData[traitValueIds[i]]['Display name on Open Sea'];
         avatarJson.attributes.push(attrJson);
-        // if (traits[i + 1] - traits[i] > 10)
-        //     tokenId = tokenId * 100 + relativeId;
-        // else
-        //     tokenId = tokenId * 10 + relativeId;
+        if (traits[i + 1] - traits[i] > 10)
+            tokenId = tokenId * 100 + relativeId;
+        else
+            tokenId = tokenId * 10 + relativeId;
     }
-    // console.log(tokenId);
+    avatarJson.name = "bloot elves #" + tokenId;
+    avatarJson.description = "bloot elves #" + tokenId;
 
-    // const pair_file_path = path.join(outPath, tokenId_cid_pair_file);
     fs.writeFile(metaDataFile, JSON.stringify(avatarJson), (err) => {
         if (err) throw err;
         console.log('Metadata file written successfully');
     });
+    return tokenId;
 }
