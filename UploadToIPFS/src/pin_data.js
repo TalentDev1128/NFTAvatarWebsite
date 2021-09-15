@@ -3,16 +3,13 @@ const fs = require('fs');
 const path = require('path');
 const pinataSDK = require('@pinata/sdk');
 const constants = require('./constants');
-const extension = '.jpg';
 
 const pinata = pinataSDK(process.env.PINATA_API_KEY, process.env.PINATA_SECRET_KEY);
 
-pinFile = async (file, callback) => {
-    const filePath = path.join(constants.ASSET, file + extension);
-    const readableStreamForFile = fs.createReadStream(filePath);
+pinFile = async (imageFile, jsonFile, callback) => {
+    const readableStreamForFile = fs.createReadStream(imageFile);
     pinata.pinFileToIPFS(readableStreamForFile).then((result) => {
         // read, change, write json file here
-        const jsonFile = path.join(constants.OUTPUT_PATH, constants.METADATA_FILE);
         fs.readFile(jsonFile, (err, data) => {
             if (err) throw err;
             let metaData = JSON.parse(data);
