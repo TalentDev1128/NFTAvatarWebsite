@@ -4,19 +4,34 @@ var groupLen = 0;
 var pointers = [];
 var layersInGroup = [];
 
-function initializePointers() {
+function initializePointers(start) {
+  // var Grps = app.activeDocument.layerSets; // loops through all groups
+  // groupLen = Grps.length;
+  // for(var i = 0; i < Grps.length; i++){
+  //   pointers[i] = 0;
+  //   layersInGroup[i] = Grps[i].layers.length;
+  // }
   var Grps = app.activeDocument.layerSets; // loops through all groups
   groupLen = Grps.length;
   for(var i = 0; i < Grps.length; i++){
-    pointers[i] = 0;
     layersInGroup[i] = Grps[i].layers.length;
   }
+  var myStart = start;
+  for(var i = groupLen - 1; i > 0; i--) {
+    var multiple = 1;
+    for(var j = 0; j < i; j++) {
+      multiple *= layersInGroup[j];
+    }
+    pointers[i] = Math.floor(myStart / multiple) + 1;
+    myStart = myStart % multiple;
+  }
+  pointers[0] = myStart + 1;
 }
 
 function isEndReached() {
   var isEnd = true;
   for(var i = 0; i < groupLen; i++){
-    if (pointers[i] < layersInGroup[i] - 1) {
+    if (pointers[i] < layersInGroup[i]) {
       isEnd = false;
       break;
     }
@@ -37,11 +52,9 @@ function setAllInvisible() {
 function setCustomVisible() {
   var Grps = app.activeDocument.layerSets; // loops through all groups
   for(var i = 0; i < Grps.length; i++){
-    // var tmp = app.activeDocument.layerSets[i].layers.length;
     app.activeDocument.layerSets[i].visible = true;
     var groupChildArr = app.activeDocument.layerSets[i].layers;
-    // var randLays = Math.floor(Math.random() * tmp);
-    groupChildArr[pointers[i]].visible = true;
+    groupChildArr[pointers[i] - 1].visible = true;
   }
 }
 
@@ -63,14 +76,14 @@ function exportPng() {
 function exportJson() {
   var nftImageJson = {};
   nftImageJson["name"] = "bloot";
-  nftImageJson["description"] = "Test Test Test";
+  nftImageJson["description"] = "bloot elves";
   nftImageJson["image"] = "";
   nftImageJson["attributes"] = [];
 
   for(var i = 0; i < groupLen; i++){
     var attrJson = {};
     attrJson["trait_type"] = app.activeDocument.layerSets[i].name;
-    attrJson["value"] = app.activeDocument.layerSets[i].layers[pointers[i]].name; 
+    attrJson["value"] = app.activeDocument.layerSets[i].layers[pointers[i] - 1].name; 
     nftImageJson["attributes"].push(attrJson);
   }
 
@@ -91,11 +104,11 @@ function exportJson() {
 
 function incrementPointer() {
   for (var i = 0; i < pointers.length; i++) {
-    if (pointers[i] < layersInGroup[i] - 1) {
+    if (pointers[i] < layersInGroup[i]) {
       pointers[i] ++;
       if (i > 0) {
         for (var j = 0; j < i; j++) {
-          pointers[j] = 0; 
+          pointers[j] = 1; 
         }
       }
       break;
@@ -120,15 +133,15 @@ function Revert(){
    executeAction( idRvrt, undefined, DialogModes.NO );
 }
 
-initializePointers();
+var start = 1; // 1 is minimum value
+initializePointers(start - 1);
 
-var i = 0;
-while(i++ < 10) {
+while(start++ < 5) {
   setAllInvisible();
   setCustomVisible();
   exportPng();
-  exportJson();
-  Revert();
+  //exportJson();
+  // Revert();
   if (isEndReached()) {
     break;
   }
