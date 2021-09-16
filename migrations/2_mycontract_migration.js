@@ -1,10 +1,10 @@
-const DungeonsAndDragonsCharacter = artifacts.require('DungeonsAndDragonsCharacter')
+const BlootElves = artifacts.require('BlootElves')
 
 module.exports = async (deployer, network, [defaultAccount]) => {
-  DungeonsAndDragonsCharacter.setProvider(deployer.provider)
+  BlootElves.setProvider(deployer.provider)
   if (network.startsWith('rinkeby')) {
-    await deployer.deploy(DungeonsAndDragonsCharacter)
-    let dnd = await DungeonsAndDragonsCharacter.deployed()
+    await deployer.deploy(BlootElves)
+    let dnd = await BlootElves.deployed()
   } else if (network.startsWith('mainnet')) {
     console.log("If you're interested in early access to Chainlink VRF on mainnet, please email vrf@chain.link")
   } else {

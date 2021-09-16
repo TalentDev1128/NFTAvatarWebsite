@@ -1,4 +1,4 @@
-// contracts/BlootAvatar.sol
+// contracts/BlootElves.sol
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.6.6;
 
@@ -6,16 +6,16 @@ import "@openzeppelin/contracts/token/ERC721/ERC721.sol";
 import "@openzeppelin/contracts/access/Ownable.sol";
 import "@openzeppelin/contracts/utils/Strings.sol";
 
-contract BlootAvatar is ERC721, Ownable {
+contract BlootElves is ERC721, Ownable {
     using SafeMath for uint256;
     using Strings for string;
 
-    ERC721 bloot = ERC721(0x4F8730E0b32B04beaa5757e5aea3aeF970E5B613);
-    uint256 MINT_LIMIT = 5;
+    ERC721 bloot = ERC721(0xCAccb157236B0969fe21eb486f2Bc5dc0662a5c5);
+    uint256 MINT_LIMIT = 2;
 
     constructor()
         public
-        ERC721("BlootAvatar", "B&Avatar")
+        ERC721("BlootElves", "B&Elves")
     {   
     }
 
