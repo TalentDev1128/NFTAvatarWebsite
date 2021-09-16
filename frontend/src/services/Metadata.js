@@ -1,7 +1,7 @@
 const axios = require('axios');
 
 export async function sendMetaDataRequest(donated) {
-  let metadata = "";
+  let metadata = null;
   await axios.get('http://192.168.80.129:3001/',
   {
     params: {
@@ -9,6 +9,9 @@ export async function sendMetaDataRequest(donated) {
     }
   }).then(function (response) {
     metadata = response.data.ipfsHash;
+    console.log(metadata);
+  }).catch(function (error) {
+    console.log(error);
   });
   // await getPairs().then(function(pairs) {
   //   const rand = Math.floor(Math.random() * pairs.length);
