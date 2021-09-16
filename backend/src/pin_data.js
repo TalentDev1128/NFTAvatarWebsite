@@ -28,8 +28,7 @@ pinFile = async (imageFile, jsonFile, callback) => {
     });
 }
 
-pinJson = async (callback) => {
-    const jsonFile = path.join(constants.OUTPUT_PATH, constants.METADATA_FILE);
+pinJson = async (jsonFile, callback) => {
 
     fs.readFile(jsonFile, (err, data) => {
         let metaData = JSON.parse(data);

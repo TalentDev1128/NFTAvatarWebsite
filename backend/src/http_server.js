@@ -13,12 +13,12 @@ app.use(cors({
 const doPremint = (donated, callback) => {
     chooseRandomFile(donated, function(fileName) {
         console.log(fileName);
-        const subPath = donated ? constants.DONATED : constants.NOT_DONATED;
+        const subPath = donated == "true" ? constants.DONATED : constants.NOT_DONATED;
         const imageFile = path.join(__dirname, '..', constants.ASSET, subPath, fileName + '.jpg');
         const jsonFile = path.join(__dirname, '..', constants.ASSET, subPath, fileName + '.json');
         pinData.pinFile(imageFile, jsonFile, () => {
-            pinData.pinJson((ipfsHash) => {
-                delFile(imageFile, jsonFile);
+            pinData.pinJson(jsonFile, (ipfsHash) => {
+                // delFile(imageFile, jsonFile);
                 callback(ipfsHash);
             });
         });
@@ -27,7 +27,7 @@ const doPremint = (donated, callback) => {
 
 const chooseRandomFile = (donated, callback) => {
     //joining path of directory 
-    const subPath = donated ? constants.DONATED : constants.NOT_DONATED;
+    const subPath = donated == "true" ? constants.DONATED : constants.NOT_DONATED;
     const directoryPath = path.join(__dirname, '..', constants.ASSET, subPath);
     //passsing directoryPath and callback function
     fs.readdir(directoryPath, function (err, files) {
