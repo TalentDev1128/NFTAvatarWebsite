@@ -17,7 +17,7 @@ const pinFile = (readableStreamForFile, jsonFile) => {
         fs.readFile(jsonFile, (err, data) => {
             if (err) throw err;
             let metaData = JSON.parse(data);
-            metaData.image = result.IpfsHash;
+            metaData.image = "https://gateway.pinata.cloud/ipfs/" + result.IpfsHash;
 
             // write change back to the json file.
             fs.writeFile(jsonFile, JSON.stringify(metaData), (err) => {
@@ -37,7 +37,7 @@ const pinJSON = (metaData, jsonFile, index) => {
         console.log(result);
         let newPair = {};
         newPair.id = jsonFile.substr(0, jsonFile.length - 5);
-        newPair.URI = result.IpfsHash;
+        newPair.URI = "https://gateway.pinata.cloud/ipfs/" + result.IpfsHash;
 
         // check if tokenId_cid_pair json contains newPair element
         if (tokenId_cid_pair.filter(e => e.id === newPair.id).length > 0) {
