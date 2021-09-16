@@ -1,7 +1,25 @@
+const axios = require('axios');
+
+export async function sendMetaDataRequest(donated) {
+  let metadata = "";
+  await axios.get('http://192.168.80.129:3001/',
+  {
+    params: {
+      donated: donated
+    }
+  }).then(function (response) {
+    metadata = response.data.ipfsHash;
+  });
+  // await getPairs().then(function(pairs) {
+  //   const rand = Math.floor(Math.random() * pairs.length);
+  //   metadata = pairs[rand].URI;
+  // });
+  return metadata;
+}
+
 export async function getMetaData() {
   let metadata;
   await getPairs().then(function(pairs) {
-    console.log(pairs);
     const rand = Math.floor(Math.random() * pairs.length);
     metadata = pairs[rand].URI;
   });
@@ -10,8 +28,8 @@ export async function getMetaData() {
 
 async function getPairs() {
   try {
-    let response = await fetch('http://localhost:3000/tokenId_cid_pair.json');
-    // let response = await fetch('https://blootavatar.web.app/tokenId_cid_pair.json');
+    // let response = await fetch('http://localhost:3000/tokenId_cid_pair.json');
+    let response = await fetch('https://blootavatar.web.app/tokenId_cid_pair.json');
     let responseJson = await response.json();
     return responseJson.pairs;
    } catch(error) {

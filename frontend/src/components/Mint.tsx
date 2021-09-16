@@ -14,14 +14,14 @@ import {
   useContractMethod
 } from "../hooks";
 
-import { getMetaData } from "../services/Metadata"
+import { sendMetaDataRequest, getMetaData } from "../services/Metadata"
 
 export default function Mint() {
 
   const { account } = useEthers();
   const balance = GetBalance(account);
   const totalSupply = GetTotalSupply();
-  const { state, send: safeMint } = useContractMethod("requestNewBloot");
+  const { state, send: safeMint } = useContractMethod("requestNewCharacter");
   const [myBalance, setMyBalance] = useState(0);
   const [isDonate, setIsDonate] = useState(false);
 
@@ -30,13 +30,15 @@ export default function Mint() {
   }, [balance]);
 
   async function handleMint() {
-    const metadata = await getMetaData();
+    // const metadata = await getMetaData();
+    const metadata = await sendMetaDataRequest(isDonate);
+    console.log(metadata);
     if (isDonate) {
-      safeMint(totalSupply, metadata, {
+      safeMint(totalSupply, metadata, isDonate, {
         value: utils.parseEther("0.001"),
       });
     } else {
-      safeMint(totalSupply, metadata);
+      safeMint(totalSupply, metadata, isDonate);
     }
   }
 
