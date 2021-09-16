@@ -1,10 +1,14 @@
 const express = require('express');
 const fs = require('fs');
 const path = require('path');
+const cors = require('cors');
 const constants = require('./constants');
 const pinData = require('./pin_data');
 
 const app = express();
+app.use(cors({
+    origin: '*'
+}));
 
 const doPremint = (donated, callback) => {
     chooseRandomFile(donated, function(fileName) {
