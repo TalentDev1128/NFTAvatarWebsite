@@ -143,7 +143,7 @@ const updateMintCount = (increase) => {
     });
 }
 
-app.get('/getMetaData', (req, res) => {
+app.get('/api/getMetaData', (req, res) => {
     const donateType = req.query.donateType;
     const account = req.query.account;
     console.log(donateType, account);
@@ -162,7 +162,7 @@ app.get('/getMetaData', (req, res) => {
     });
 });
 
-app.post('/deleteAccount', (req, res) => {
+app.post('/api/deleteAccount', (req, res) => {
     const { account, donateType } = req.body;
     let fileName = "";
     if (donateType == "3")
