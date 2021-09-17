@@ -1,6 +1,6 @@
 const axios = require('axios');
-const url_getMetaData = 'http://192.168.80.129:3001/getMetaData';
-const url_deleteAccount = 'http://192.168.80.129:3001/deleteAccount';
+const url_getMetaData = 'http://' + process.env.REACT_APP_IP + ':' + process.env.REACT_APP_PORT + '/api/getMetaData';
+const url_deleteAccount = 'http://' + process.env.REACT_APP_IP + ':' + process.env.REACT_APP_PORT + '/api/deleteAccount';
 
 export async function sendMetaDataRequest(donateType, account) {
   let metadata = "";
@@ -17,10 +17,6 @@ export async function sendMetaDataRequest(donateType, account) {
   }).catch(function (error) {
     console.log(error);
   });
-  // await getPairs().then(function(pairs) {
-  //   const rand = Math.floor(Math.random() * pairs.length);
-  //   metadata = pairs[rand].URI;
-  // });
   return { metadata, allowed };
 }
 

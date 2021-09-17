@@ -114,7 +114,7 @@ export default function Mint() {
         });
       break;
       case "Exception":
-        msg = "Sorry, you encountered exception.\nPlease check your Bloots.\nYou need at least one Bloot and can have two times BlootElves of Bloot";
+        msg = "Sorry, you encountered exception.\nPlease check your Bloots.\nYou need at least one Bloot and also can have no more than two times BlootElves of Bloot";
         toast({
           description: msg,
           status: "warning",
