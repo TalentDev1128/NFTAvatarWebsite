@@ -1,15 +1,19 @@
 const axios = require('axios');
+const url_getMetaData = 'http://192.168.80.129:3001/getMetaData';
+const url_deleteAccount = 'http://192.168.80.129:3001/deleteAccount';
 
-export async function sendMetaDataRequest(donated) {
-  let metadata = null;
-  await axios.get('http://192.168.80.129:3001/',
+export async function sendMetaDataRequest(donateType, account) {
+  let metadata = "";
+  let allowed = "";
+  await axios.get(url_getMetaData,
   {
     params: {
-      donated: donated
+      donateType: donateType,
+      account: account
     }
   }).then(function (response) {
     metadata = response.data.ipfsHash;
-    console.log(metadata);
+    allowed = response.data.allowed;
   }).catch(function (error) {
     console.log(error);
   });
@@ -17,7 +21,16 @@ export async function sendMetaDataRequest(donated) {
   //   const rand = Math.floor(Math.random() * pairs.length);
   //   metadata = pairs[rand].URI;
   // });
-  return metadata;
+  return { metadata, allowed };
+}
+
+export async function sendDeleteRequest(account, donateType) {
+  console.log(account, donateType);
+  await axios.post(url_deleteAccount,
+    {
+      "account" : account,
+      "donateType" : donateType
+    });
 }
 
 export async function getMetaData() {
