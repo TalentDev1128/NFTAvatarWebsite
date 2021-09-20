@@ -16,28 +16,44 @@ import ReactLoading from 'react-loading';
 import {
   GetTotalSupply,
   GetBalance,
+  GetBloot,
   useContractMethod
 } from "../hooks";
 
-import { sendMetaDataRequest, sendDeleteRequest, getMetaData } from "../services/Metadata";
+import { sendMetaDataRequest, sendDeleteRequest, getCurrentState, getMetaData } from "../services/Metadata";
 
 export default function Mint() {
 
   const { account } = useEthers();
   const balance = GetBalance(account);
+  const bloot = GetBloot(account);
   const totalSupply = GetTotalSupply();
   const { state, send: safeMint } = useContractMethod("requestNewBloot");
   const [myBalance, setMyBalance] = useState(0);
+  const [myBloot, setMyBloot] = useState(0);
   const [donateType, setDonateType] = useState("1");
   const [showLoading, setShowLoading] = useState(false);
+  // const [currentTotalMint, setCurrentTotalMint] = useState("0/5000");
+  const [currentHonorary, setCurrentHonorary] = useState("0/100");
   const toast = useToast();
   const divStyle = {
     display: 'none'
   };
 
+  const intervalId = setInterval(async () => {
+    // api call to collect totalMint and honoraryElves
+    const { totalMint, honoraryElves } = await getCurrentState();
+    // setCurrentTotalMint(totalMint);
+    setCurrentHonorary(honoraryElves);
+  }, 10000);
+
   useEffect(() => {
     setMyBalance(balance ? balance.toNumber() : 0);
   }, [balance]);
+
+  useEffect(() => {
+    setMyBloot(bloot ? bloot.toNumber() : 0);
+  }, [bloot]);
 
   useEffect(() => {
     doPostTransaction(state);
@@ -48,7 +64,8 @@ export default function Mint() {
   async function handleMint() {
     // const metadata = await getMetaData();
     setShowLoading(true);
-    const { metadata, allowed } = await sendMetaDataRequest(donateType, account);
+    const { metadata, allowed, tokenId } = await sendMetaDataRequest(donateType, account);
+    console.log(tokenId);
     setShowLoading(false);
     if (!allowed) {
       toast({
@@ -70,11 +87,11 @@ export default function Mint() {
       donateValue = "0.5";
 
     if (donateType !== "1") {
-      await safeMint(totalSupply, metadata, {
+      await safeMint(tokenId, metadata, {
         value: utils.parseEther(donateValue),
       });
     } else {
-      await safeMint(totalSupply, metadata);
+      await safeMint(tokenId, metadata);
     }
   }
 
@@ -82,7 +99,7 @@ export default function Mint() {
     let msg = "";
     switch (state.status) {
       case "Success":
-        msg = "A new bloot was minted successfully";
+        msg = "Success. please wait";
         toast({
           description: msg,
           status: "success",
@@ -114,7 +131,7 @@ export default function Mint() {
         });
       break;
       case "Exception":
-        msg = "Sorry, you encountered exception.\nPlease check your Bloots.\nYou need at least one Bloot and also can have no more than two times BlootElves of Bloot";
+        msg = "Mint failed, please try again. Note: You need at least one Bloot. Each Bloot can mint no more than 2x Bloot Elves.";
         toast({
           description: msg,
           status: "warning",
@@ -127,7 +144,7 @@ export default function Mint() {
   }
 
   return (
-    <Flex direction="column" align="center" mt="4">
+    <Flex direction="column" align="center" mt="4" margin="10px">
       {account ? (
         <Box
           overflowX="auto"
@@ -159,19 +176,27 @@ export default function Mint() {
         )
       }
       <Text color="white" fontSize="4xl">
-        {account ? (myBalance ? '' : 'Not found your NFT') : 'Please connect your wallet'}
+        {account ? (myBalance ? '' : 'You own ' + myBloot + ' Bloots. You can mint ' + (myBloot * 2) + ' Elves') : 'Please connect your wallet'}
       </Text>
-      <Button colorScheme="teal" size="lg" marginTop="5" onClick={handleMint} disabled={account ? false : true} width="25%" height={32}>
-        Mint Avatar
+      {account ? (myBalance ? (
+        <Text color="white" fontSize="2xl" marginTop="5px">
+        You own {myBloot} Bloots. You can mint {myBloot * 2} Elves
+        </Text>
+        ) : '') : ''}
+      <Button colorScheme="teal" size="lg" marginTop="5" onClick={handleMint} disabled={account ? false : true} width="35%" height={account ? (myBalance ? 20 : 25): 20}>
+        Mint New Elf
       </Button>
+      <Text color="white" fontSize="2xl" marginTop="2px">
+        {totalSupply ? totalSupply.toNumber() : 0}/5000
+      </Text>
       <RadioGroup color="white" marginTop="10" marginBottom="50" defaultValue="1" value={donateType} onChange={setDonateType}>
-        <Stack spacing={10} direction="row">
+        <Stack spacing={5} direction="column">
           <Radio value="1">
-            Just Mint
+            Free Mint
           </Radio>
-          <Radio value="2">Donate 0.01eth</Radio>
-          <Radio value="3">Donate 0.04eth</Radio>
-          <Radio value="4">Donate 0.5eth</Radio>
+          <Radio value="2">Donate 0.01eth for 50% chance of rarer traits</Radio>
+          <Radio value="3">Donate 0.04eth for cameo of your Elves in future content</Radio>
+          <Radio value="4">Donate 0.5eth for status of Honorary Elf ({currentHonorary})</Radio>
         </Stack>
       </RadioGroup>
       <div style={showLoading? undefined: divStyle}>

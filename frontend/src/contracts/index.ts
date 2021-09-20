@@ -1,2 +1,2 @@
 export const simpleContractAddress =
-  "0xD7D3920C52FdB110270bf29A41281CA30C01cA1f";
+  "0x45c3844Dea2e9Fe9226524411DE6d907188A1a9F";

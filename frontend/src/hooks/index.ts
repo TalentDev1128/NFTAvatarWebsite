@@ -29,6 +29,17 @@ export function GetBalance(owner: any) {
   return balance;
 }
 
+export function GetBloot(owner: any) {
+  const [balance]: any =
+    useContractCall({
+      abi: simpleContractInterface,
+      address: simpleContractAddress,
+      method: "orginalBalanceOf",
+      args: [owner],
+    }) ?? [];
+  return balance;
+}
+
 export function GetTokenOfOwnerByIndex(owner: any, index: any) {
   const [tokenId]: any =
     useContractCall({

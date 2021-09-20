@@ -24,6 +24,6 @@ export default function NFTImage({ account, index }: Props) {
   })
 
   return (
-    <Image src={imageSrc} alt="Segun Adebayo" width="150px" marginRight="20px"/>
+    <Image src={imageSrc} alt="Segun Adebayo" width="150px" height="150px" marginRight="20px"/>
   )
 }

@@ -1,8 +1,8 @@
 {
   "name": "connect-metamask-react-dapp",
-  "homepage": "blootelves.family",
+  "homepage": ".",
   "version": "0.1.0",
-  "author": "Jacob E. Dawson",
+  "author": "albert",
   "private": true,
   "dependencies": {
     "@chakra-ui/icons": "^1.0.14",

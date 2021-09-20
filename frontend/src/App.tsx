@@ -10,7 +10,7 @@ function App() {
   return (
     <ChakraProvider theme={theme}>
       <Layout>
-        <Image src="/Blootelves_logo.png" alt="Blootelves_logo" width="200px" position="absolute" top="40px" left="20px"/>
+        <Image src="/Blootelves_logo website.png" alt="Blootelves_logo" width="200px" marginBottom="5px"/>
         <ConnectButton handleOpenModal={onOpen} />
         <Mint />
       </Layout>
