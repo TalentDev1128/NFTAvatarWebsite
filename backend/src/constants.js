@@ -10,4 +10,5 @@ module.exports = {
     PEOPLE_DONATED_004: 'people_donated_004.dat',
     PEOPLE_DONATED_05: 'people_donated_05.dat',
     TOTAL_MINT: 'total_mint.dat',
+    MINTED_IDS: 'minted_IDs.dat',
 };

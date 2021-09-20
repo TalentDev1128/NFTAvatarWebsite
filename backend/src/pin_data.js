@@ -6,7 +6,7 @@ const constants = require('./constants');
 
 const pinata = pinataSDK(process.env.PINATA_API_KEY, process.env.PINATA_SECRET_KEY);
 
-pinFile = async (imageFile, jsonFile, callback) => {
+pinFile = async (imageFile, jsonFile, tokenId, callback) => {
     const readableStreamForFile = fs.createReadStream(imageFile);
     pinata.pinFileToIPFS(readableStreamForFile).then((result) => {
         // read, change, write json file here
@@ -15,6 +15,9 @@ pinFile = async (imageFile, jsonFile, callback) => {
             let metaData = JSON.parse(data);
             metaData.image = "https://gateway.pinata.cloud/ipfs/" + result.IpfsHash;
 
+            // add name & description to metadata
+            metaData.name = "Elf #" + tokenId;
+            metaData.description = "Elf #" + tokenId;
             // write change back to the json file.
             fs.writeFile(jsonFile, JSON.stringify(metaData), (err) => {
                 if (err) throw err;

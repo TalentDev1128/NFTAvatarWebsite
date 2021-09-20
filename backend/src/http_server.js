@@ -13,13 +13,13 @@ app.use(cors({
 app.use(bodyParser.urlencoded({ extended: true }));
 app.use(bodyParser.json());
 
-const doPremint = (donateType, callback) => {
+const doPremint = (donateType, tokenId, callback) => {
     chooseRandomFile(donateType, function(fileName) {
         console.log(fileName);
         const subPath = donateType != "1" ? constants.DONATED : constants.NOT_DONATED;
         const imageFile = path.join(__dirname, '..', constants.ASSET, subPath, fileName + '.jpg');
         const jsonFile = path.join(__dirname, '..', constants.ASSET, subPath, fileName + '.json');
-        pinData.pinFile(imageFile, jsonFile, () => {
+        pinData.pinFile(imageFile, jsonFile, tokenId, () => {
             pinData.pinJson(jsonFile, (ipfsHash) => {
                 moveFile(donateType, fileName);
                 callback(ipfsHash);
@@ -70,20 +70,24 @@ const insertPeopleDonated = (donateType, account, callback) => {
         fileName = path.join(__dirname, '..', constants.OUTPUT_PATH, constants.PEOPLE_DONATED_004);
         fs.readFile(fileName, (err, data) => {
             if (err) {
-                fs.writeFile(fileName, account, (err) => {
-                    if (err) throw err;
-                });
+                allowed = false;
+                callback(allowed);
             }
             let arrData;
+            let strData = "";
             if (data) {
                 console.log('==', data.toString());
                 arrData = data.toString().split("\n");
+                arrData.push(account);
+                strData = arrData.join("\n");
             } else
-                arrData = [];
-            arrData.push(account);
+                strData = account;
             
-            fs.writeFile(fileName, arrData.join("\n"), (err) => {
-                if (err) throw err;
+            fs.writeFile(fileName, strData, (err) => {
+                if (err) {
+                    allowed = false;
+                    callback(allowed);
+                }
             });
             callback(allowed);
         });
@@ -92,24 +96,28 @@ const insertPeopleDonated = (donateType, account, callback) => {
         fileName = path.join(__dirname, '..', constants.OUTPUT_PATH, constants.PEOPLE_DONATED_05);
         fs.readFile(fileName, (err, data) => {
             if (err) {
-                fs.writeFile(fileName, account, (err) => {
-                    if (err) throw err;
-                });
+                allowed = false;
+                callback(allowed);
             }
             let arrData;
+            let strData = "";
             if (data) {
                 console.log('==', data.toString());
                 arrData = data.toString().split("\n");
+                arrData.push(account);
+                strData = arrData.join("\n");
             } else
-                arrData = [];
+                strData = account;
 
             if (arrData.length >= 100) {
                 allowed =false;
                 callback(allowed);
             } else {
-                arrData.push(account);
-                fs.writeFile(fileName, arrData.join("\n"), (err) => {
-                    if (err) throw err;
+                fs.writeFile(fileName, strData, (err) => {
+                    if (err) {
+                        allowed = false;
+                        callback(allowed);
+                    }
                 });
                 callback(allowed);
             }
@@ -129,7 +137,6 @@ const updateMintCount = (increase) => {
             return;
         }
         let currentMint = 0;
-        // console.log('==', data.toString());
         if (data && data.toString().length != 0)
             currentMint = parseInt(data.toString().split("/")[0]);
         if (increase)
@@ -143,46 +150,105 @@ const updateMintCount = (increase) => {
     });
 }
 
+const updateMintedIDs = (callback) => {
+    fileName = path.join(__dirname, '..', constants.OUTPUT_PATH, constants.MINTED_IDS);
+    fs.readFile(fileName, (err, data) => {
+        if (err) {
+            console.error(err);
+            let randID = Math.floor(Math.random() * 10000) + 10000;
+            callback(randID.toString());
+            return;
+        }
+        let mintedIDs = [];
+        let updatedIDs = "";
+        let newID = (Math.floor(Math.random() * 10000) + 10000).toString();
+        if (data && data.length != 0) {
+            mintedIDs = data.toString().split("\n");
+            newID = parseInt(mintedIDs[mintedIDs.length - 1]) + 1;
+            mintedIDs.push(newID.toString());
+            updatedIDs = mintedIDs.join("\n");
+        } else {
+            updatedIDs = newID;
+        }
+        fs.writeFile(fileName, updatedIDs, (err) => {
+            if (err) throw err;
+        });
+        callback(newID);
+    });
+}
+
 app.get('/api/getMetaData', (req, res) => {
-    const donateType = req.query.donateType;
-    const account = req.query.account;
+    const { account, donateType } = req.query;
     console.log(donateType, account);
     updateMintCount(true);
     insertPeopleDonated(donateType, account, (allowed) => {
         if (!allowed)
-            res.json({"ipfsHash" : "", "allowed" : false});
+            res.json({"ipfsHash" : "", "allowed" : false, "tokenId" : "0"});
         else {
-            doPremint(donateType, (ipfsHash) => {
-                console.log(ipfsHash);
-                console.log('successfully sent ipfsHash');
-                console.log('============');
-                res.json({"ipfsHash" : ipfsHash, "allowed" : true});
+            updateMintedIDs(function(newID) {
+                doPremint(donateType, newID, (ipfsHash) => {
+                    console.log(ipfsHash);
+                    console.log('successfully sent ipfsHash');
+                    console.log('============');
+                    res.json({"ipfsHash" : ipfsHash, "allowed" : true, "tokenId" : newID});
+                });
             });
         }
     });
 });
 
-app.post('/api/deleteAccount', (req, res) => {
-    const { account, donateType } = req.body;
+app.get('/api/deleteAccount', (req, res) => {
+    // const { account, donateType } = req.body;
+    const { account, donateType } = req.query;
     let fileName = "";
     if (donateType == "3")
         fileName = path.join(__dirname, '..', constants.OUTPUT_PATH, constants.PEOPLE_DONATED_004);
     if (donateType == "4")
         fileName = path.join(__dirname, '..', constants.OUTPUT_PATH, constants.PEOPLE_DONATED_05);
     updateMintCount(false);
-    fs.readFile(fileName, (err, data) => {
+    if (donateType == "3" || donateType == "4") {
+        fs.readFile(fileName, (err, data) => {
+            if (err) {
+                console.error(err);
+            }
+            if (data) {
+                let arrData = data.toString().split("\n");
+                const idx = arrData.lastIndexOf(account);
+                arrData.splice(idx, 1);
+
+                fs.writeFile(fileName, arrData.join("\n"), (err) => {
+                    if (err) throw err;
+                });
+            }
+        });
+    }
+    res.json({"status": "1"});
+});
+
+app.get('/api/getCurrentState', (req, res) => {
+    const mintFileName = path.join(__dirname, '..', constants.OUTPUT_PATH, constants.TOTAL_MINT);
+    let totalMint = "0/5000";
+    let honoraryElves = "0/100";
+    fs.readFile(mintFileName, (err, data) => {
         if (err) {
             console.error(err);
+            res.json({"totalMint": "0", "honoraryElves": "0"});
         }
-        if (data) {
-            let arrData = data.toString().split("\n");
-            const idx = arrData.lastIndexOf(account);
-            arrData.splice(idx, 1);
-
-            fs.writeFile(fileName, arrData.join("\n"), (err) => {
-                if (err) throw err;
-            });
-        }
+        if (data && data.toString().length != 0)
+            totalMint = data.toString();
+    
+        const honorarFileName = path.join(__dirname, '..', constants.OUTPUT_PATH, constants.PEOPLE_DONATED_05);
+        fs.readFile(honorarFileName, (err, data) => {
+            if (err) {
+                console.error(err);
+                res.json({"totalMint": totalMint, "honoraryElves": "0"});
+            }
+            if (data) {
+                let totalHonorary = data.toString().split("\n").length;
+                honoraryElves = totalHonorary + "/100";
+                res.json({"totalMint": totalMint, "honoraryElves": honoraryElves});
+            }
+        });
     });
 });
 

@@ -26,7 +26,7 @@ const preMint = (donated, callback) => {
     const imageFile = path.join(constants.ASSET, tokenId + extension);
     const jsonFile = path.join(constants.OUTPUT_PATH, constants.METADATA_FILE);
     pinData.pinFile(imageFile, jsonFile, () => {
-        pinData.pinJson((ipfsHash) => {
+        pinData.pinJson(jsonFile, (ipfsHash) => {
             callback(ipfsHash);
         });
     });
