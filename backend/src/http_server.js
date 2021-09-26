@@ -252,4 +252,45 @@ app.get('/api/getCurrentState', (req, res) => {
     });
 });
 
+app.get('/api/getOldIDs', (req, res) => {
+    const { tokenIDs } = req.query;
+    console.log(tokenIDs);
+
+    const pairFilePath = path.join(__dirname, '..', constants.OUTPUT_PATH, constants.OLD_NEW_ID_PAIR);
+    fs.readFile(pairFilePath, (err, data) => {
+        if (err) {
+            console.error(err);
+            res.json({"ids": [], "status": "fail"});
+        }
+        if (data) {
+            let pairs = JSON.parse(data);
+            let ids = [];
+            for (let i = 0; i < tokenIDs.length; i++) {
+                let tokenId = tokenIDs[i];
+                ids.push(pairs[tokenId]);
+            }
+            if (ids.length != 0)
+                res.json({"ids": ids, "status": "success"});
+            else
+                res.json({"ids": [], "status": "fail"});
+        }
+    });
+});
+
+app.get('/api/saveMigrateSuccess', (req, res) => {
+    const { account } = req.query;
+
+    const migratedFilePath = path.join(__dirname, '..', constants.OUTPUT_PATH, constants.PEOPLE_MIGRATED);
+    fs.appendFile(migratedFilePath, account + "\n", function (err) {
+        if (err) {
+            // append failed
+            console.error(err);
+            res.json({});
+        } else {
+            // done
+            res.json({});
+        }
+    });
+});
+
 app.listen(process.env.PORT, () => console.log('Your app is listening on port ' + process.env.PORT));
