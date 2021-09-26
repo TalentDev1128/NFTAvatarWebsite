@@ -18,7 +18,6 @@ export default function NFTImage({ account, index }: Props) {
   const [imageSrc, setImageSrc] = useState("");
   const tokenId = GetTokenOfOwnerByIndex(account, index);
   const token_uri = GetTokenURI(tokenId);
-
   getImageURI(token_uri).then(function(imageURI: string) {
     setImageSrc(imageURI);
   })

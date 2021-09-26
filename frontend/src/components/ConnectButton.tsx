@@ -19,6 +19,9 @@ export default function ConnectButton({ handleOpenModal }: Props) {
     <Box
       display="flex"
       alignItems="center"
+      justifyContent="center"
+      width="fit-content"
+      margin="auto"
       background="gray.700"
       borderRadius="xl"
       py="0"

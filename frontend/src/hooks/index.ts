@@ -2,10 +2,13 @@ import { ethers } from "ethers";
 import { Contract } from "@ethersproject/contracts";
 import { useContractCall, useContractFunction } from "@usedapp/core";
 import simpleContractAbi from "../abi/SimpleContract.json";
-import { simpleContractAddress } from "../contracts";
+import simpleContractAbiOld from "../abi/SimpleContractOld.json";
+import { simpleContractAddress, simpleContractAddressOld } from "../contracts";
 
 const simpleContractInterface = new ethers.utils.Interface(simpleContractAbi);
+const simpleContractInterfaceOld = new ethers.utils.Interface(simpleContractAbiOld);
 const contract = new Contract(simpleContractAddress, simpleContractInterface);
+const oldContract = new Contract(simpleContractAddressOld, simpleContractInterfaceOld);
 
 export function GetTotalSupply() {
   const [balance]: any =
@@ -16,6 +19,39 @@ export function GetTotalSupply() {
       args: [],
     }) ?? [];
   return balance;
+}
+
+export function GetOldTotalSupply() {
+  const [balance]: any =
+    useContractCall({
+      abi: simpleContractInterfaceOld,
+      address: simpleContractAddressOld,
+      method: "totalSupply",
+      args: [],
+    }) ?? [];
+  return balance;
+}
+
+export function GetTotalMigrate(owner: any) {
+  const [balance]: any =
+    useContractCall({
+      abi: simpleContractInterface,
+      address: simpleContractAddress,
+      method: "elfToMigrate",
+      args: [owner],
+    }) ?? [];
+  return balance;
+}
+
+export function GetCurrentHonorary() {
+  const [honorary]: any =
+    useContractCall({
+      abi: simpleContractInterface,
+      address: simpleContractAddress,
+      method: "currentHonorary",
+      args: [],
+    }) ?? [];
+  return honorary;
 }
 
 export function GetBalance(owner: any) {
@@ -51,6 +87,17 @@ export function GetTokenOfOwnerByIndex(owner: any, index: any) {
   return tokenId;
 }
 
+export function GetOldTokenOfOwnerByIndex(owner: any, index: any) {
+  const [tokenId]: any =
+    useContractCall({
+      abi: simpleContractInterfaceOld,
+      address: simpleContractAddressOld,
+      method: "tokenOfOwnerByIndex",
+      args: [owner, index],
+    }) ?? [];
+  return tokenId;
+}
+
 export function GetTokenURI(tokenId: any) {
   const [tokenURI]: any =
     useContractCall({
@@ -65,5 +112,11 @@ export function GetTokenURI(tokenId: any) {
 export function useContractMethod(methodName: string) {
   // @ts-ignore
   const { state, send } = useContractFunction(contract, methodName, {});
+  return { state, send };
+}
+
+export function useOldContractMethod(methodName: string) {
+  // @ts-ignore
+  const { state, send } = useContractFunction(oldContract, methodName, {});
   return { state, send };
 }

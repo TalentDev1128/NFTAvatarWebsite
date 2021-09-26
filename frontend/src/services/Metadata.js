@@ -1,67 +1,42 @@
 const axios = require('axios');
 
-const url_getMetaData = 'https://api.blootelves.family/api/getMetaData';
-const url_deleteAccount = 'https://api.blootelves.family/api/deleteAccount';
-const url_getCurrentState = 'https://api.blootelves.family/api/getCurrentState';
-// const url_getMetaData = 'http://localhost:3001/api/getMetaData';
-// const url_deleteAccount = 'http://localhost:3001/api/deleteAccount';
-// const url_getCurrentState = 'http://localhost:3001/api/getCurrentState';
+// const url_getMetaData = 'https://api.blootelves.family/api/getMetaData';
+// const url_deleteAccount = 'https://api.blootelves.family/api/deleteAccount';
+// const url_getCurrentState = 'https://api.blootelves.family/api/getCurrentState';
 
-export async function sendMetaDataRequest(donateType, account) {
-  let metadata = "";
-  let allowed = "";
-  let tokenId = "";
-  await axios.get(url_getMetaData,
+const url_getOldIDs = 'https://api.blootelves.family/api/getOldIDs';
+const url_saveMigrateSuccess = 'http://api.blootelves.family/api/saveMigrateSuccess';
+// const url_getOldIDs = 'http://localhost:3001/api/getOldIDs';
+// const url_saveMigrateSuccess = 'http://localhost:3001/api/saveMigrateSuccess';
+
+export async function getOldIDs(tokenIDs) {
+  let ids = [];
+  let status = "";
+  await axios.get(url_getOldIDs,
   {
     params: {
-      donateType: donateType,
-      account: account
+      tokenIDs: tokenIDs
     }
   }).then(function (response) {
-    metadata = response.data.ipfsHash;
-    allowed = response.data.allowed;
-    tokenId = response.data.tokenId;
+    ids = response.data.ids;
+    status = response.data.status;
   }).catch(function (error) {
     console.log(error);
   });
-  return { metadata, allowed, tokenId };
+  return { ids, status };
 }
 
-export async function sendDeleteRequest(account, donateType) {
-  console.log(account, donateType);
-  await axios.get(url_deleteAccount,
+export async function saveMigrateSuccess(account) {
+  await axios.get(url_saveMigrateSuccess,
   {
     params: {
-      donateType: donateType,
       account: account
     }
   }).then(function () {
   }).catch(function (error) {
     console.log(error);
   });
-  // await axios.post(url_deleteAccount,
-  // {
-  //   params: {
-  //     donateType: donateType,
-  //     account: account
-  //   }
-  // });
-}
-
-export async function getCurrentState() {
-  let totalMint = "0/5000";
-  let honoraryElves = "0/100";
-  await axios.get(url_getCurrentState,
-  {
-    params: {
-    }
-  }).then(function (response) {
-    totalMint = response.data.totalMint;
-    honoraryElves = response.data.honoraryElves;
-  }).catch(function (error) {
-    console.log(error);
-  });
-  return { totalMint, honoraryElves };
+  return { };
 }
 
 export async function getMetaData() {
@@ -87,9 +62,10 @@ async function getPairs() {
 export async function getImageURI(tokenURI) {
   try {
     if (tokenURI) {
-      let uriSplitted = tokenURI.split('/');
+      const _tokenURI = tokenURI.replace(/\u0000/g, '');
+      let uriSplitted = _tokenURI.split('/');
       if (uriSplitted[uriSplitted.length - 1]) {
-        let response = await fetch(tokenURI);
+        let response = await fetch(_tokenURI);
         let responseJson = await response.json();
         return responseJson.image;
       }
@@ -101,4 +77,16 @@ export async function getImageURI(tokenURI) {
    } catch(error) {
     console.error(error);
   }
+}
+
+function stringToHex(data) {
+  let msg = '';
+  for (let i = 0; i < data.length; i++) {
+    let s = data.charCodeAt(i).toString(16);
+    while (s.length < 2) {
+      s = '0' + s;
+    }
+    msg += s;
+  }
+  return msg.padEnd(64, '0');
 }
