@@ -17,13 +17,13 @@ import { getOldIDs, saveMigrateSuccess } from "../services/Metadata";
 export default function Migrate() {
 
   const { account } = useEthers();
-  const balance = GetBalance(account);
   const balanceMigrate = GetTotalMigrate(account);
-  const tokenID = GetOldTokenOfOwnerByIndex(account, 0);
   const { state: migrateState, send: migrate } = useContractMethod("migrate");
   const { state: approvalState, send: setApprovalForAll } = useOldContractMethod("setApprovalForAll");
   const [showLoading, setShowLoading] = useState(false);
   const [myMigrate, setMyMigrate] = useState(0);
+  const [myTokenID, setMyTokenID] = useState(0);
+  const tokenID = GetOldTokenOfOwnerByIndex(account);
   const toast = useToast();
   const divStyle = {
     display: 'none'
@@ -32,6 +32,10 @@ export default function Migrate() {
   useEffect(() => {
     setMyMigrate(balanceMigrate ? balanceMigrate.toNumber() : 0);
   }, [balanceMigrate]);
+
+  useEffect(() => {
+    setMyTokenID(tokenID ? tokenID.toNumber() : 0);
+  }, [tokenID]);
 
   useEffect(() => {
     doPostTransaction(migrateState);
@@ -56,17 +60,15 @@ export default function Migrate() {
       return;
     }
     setShowLoading(true);
-    let tokenIDs = [tokenID.toNumber()];
-    console.log(tokenID);
+    let tokenIDs = [myTokenID];
     console.log(tokenIDs);
     const { ids, status } = await getOldIDs(tokenIDs);
-    // const { ids, status } = await getOldIDs("0x0ACD3b41e5B21e8b23b2ED054645316a9B1Db28");
     console.log(ids);
     console.log(status);
     setShowLoading(false);
     if (status !== "success") {
       toast({
-        description: "Can't migrate. Approve first or contact administrator, please.",
+        description: "Can't migrate. Authorize first or contact administrator, please.",
         status: "warning",
         duration: 3000,
         position: "top-right",
@@ -128,7 +130,7 @@ export default function Migrate() {
         });
       break;
       case "Exception":
-        msg = "Exception";
+        msg = "Can't migrate. Authorze first or contact administrator, please.";
         toast({
           description: msg,
           status: "warning",
@@ -145,10 +147,10 @@ export default function Migrate() {
       <Text color="white" fontSize="4xl" marginTop="5px" marginBottom="5px">
         {'You have ' + myMigrate + ' elf(s) to migrate'}
       </Text>
-      <Button colorScheme="teal" size="lg" marginTop="5" onClick={handleApprove} disabled={account ? (myMigrate > 0 ? false : true) : true} width="25%">
-        Approve
+      <Button style={{backgroundColor:"#04ff00"}} size="lg" marginTop="5" onClick={handleApprove} disabled={account ? (myMigrate > 0 ? false : true) : true} width="25%">
+        Authorize (only once)
       </Button>
-      <Button colorScheme="teal" size="lg" marginTop="5" onClick={handleMigrate} disabled={account ? (myMigrate > 0 ? false : true) : true} width="25%">
+      <Button style={{backgroundColor:"#04ff00"}} size="lg" marginTop="5" marginBottom="10" onClick={handleMigrate} disabled={account ? (myMigrate > 0 ? false : true) : true} width="25%">
         Burn & Migrate
       </Button>
       <div style={showLoading? undefined: divStyle}>

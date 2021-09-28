@@ -507,11 +507,11 @@
     "inputs": [
       {
         "internalType": "address",
-        "name": "oldElfOwner",
+        "name": "blootOwner",
         "type": "address"
       }
     ],
-    "name": "elfToMigrate",
+    "name": "orginalBalanceOf",
     "outputs": [
       {
         "internalType": "uint256",
@@ -527,11 +527,11 @@
     "inputs": [
       {
         "internalType": "address",
-        "name": "blootOwner",
+        "name": "oldElfOwner",
         "type": "address"
       }
     ],
-    "name": "orginalBalanceOf",
+    "name": "getOldElfTokenID",
     "outputs": [
       {
         "internalType": "uint256",

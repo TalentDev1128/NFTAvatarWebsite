@@ -1,9 +1,8 @@
 [
   {
     "inputs": [],
-    "stateMutability": "payable",
-    "type": "constructor",
-    "payable": true
+    "stateMutability": "nonpayable",
+    "type": "constructor"
   },
   {
     "anonymous": false,
@@ -478,7 +477,7 @@
       },
       {
         "internalType": "string",
-        "name": "tokenURI",
+        "name": "_tokenURI",
         "type": "string"
       }
     ],
@@ -492,7 +491,7 @@
     "inputs": [
       {
         "internalType": "address",
-        "name": "blootOwner",
+        "name": "owner",
         "type": "address"
       }
     ],
@@ -509,8 +508,39 @@
     "constant": true
   },
   {
-    "inputs": [],
-    "name": "withdraw",
+    "inputs": [
+      {
+        "internalType": "uint256",
+        "name": "tokenId",
+        "type": "uint256"
+      }
+    ],
+    "name": "getTokenURI",
+    "outputs": [
+      {
+        "internalType": "string",
+        "name": "",
+        "type": "string"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function",
+    "constant": true
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "uint256",
+        "name": "tokenId",
+        "type": "uint256"
+      },
+      {
+        "internalType": "string",
+        "name": "_tokenURI",
+        "type": "string"
+      }
+    ],
+    "name": "setTokenURI",
     "outputs": [],
     "stateMutability": "nonpayable",
     "type": "function"

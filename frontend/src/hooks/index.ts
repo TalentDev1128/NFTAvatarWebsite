@@ -35,9 +35,9 @@ export function GetOldTotalSupply() {
 export function GetTotalMigrate(owner: any) {
   const [balance]: any =
     useContractCall({
-      abi: simpleContractInterface,
-      address: simpleContractAddress,
-      method: "elfToMigrate",
+      abi: simpleContractInterfaceOld,
+      address: simpleContractAddressOld,
+      method: "balanceOf",
       args: [owner],
     }) ?? [];
   return balance;
@@ -65,6 +65,28 @@ export function GetBalance(owner: any) {
   return balance;
 }
 
+export function GetOwnerOf(tokenId: any) {
+  const [owner]: any =
+    useContractCall({
+      abi: simpleContractInterface,
+      address: simpleContractAddress,
+      method: "ownerOf",
+      args: [tokenId],
+    }) ?? [];
+  return owner;
+}
+
+export function GetTokenByIndex(index: any) {
+  const [tokenId]: any =
+    useContractCall({
+      abi: simpleContractInterface,
+      address: simpleContractAddress,
+      method: "tokenByIndex",
+      args: [index],
+    }) ?? [];
+  return tokenId;
+}
+
 export function GetBloot(owner: any) {
   const [balance]: any =
     useContractCall({
@@ -87,13 +109,13 @@ export function GetTokenOfOwnerByIndex(owner: any, index: any) {
   return tokenId;
 }
 
-export function GetOldTokenOfOwnerByIndex(owner: any, index: any) {
+export function GetOldTokenOfOwnerByIndex(owner: any) {
   const [tokenId]: any =
     useContractCall({
-      abi: simpleContractInterfaceOld,
-      address: simpleContractAddressOld,
-      method: "tokenOfOwnerByIndex",
-      args: [owner, index],
+      abi: simpleContractInterface,
+      address: simpleContractAddress,
+      method: "getOldElfTokenID",
+      args: [owner],
     }) ?? [];
   return tokenId;
 }

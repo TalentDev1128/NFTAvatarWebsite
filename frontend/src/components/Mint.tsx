@@ -12,15 +12,16 @@ import {
 import NFTImage from "./NFTImage"
 import { utils } from "ethers";
 import { useEthers } from "@usedapp/core";
-// import ReactLoading from 'react-loading';
 import {
   GetTotalSupply,
   GetOldTotalSupply,
   GetBalance,
   GetCurrentHonorary,
   GetBloot,
-  useContractMethod
+  useContractMethod,
+  GetTotalMigrate
 } from "../hooks";
+import { simpleContractAddressOld } from "../contracts";
 
 export default function Mint() {
 
@@ -28,6 +29,7 @@ export default function Mint() {
   const balance = GetBalance(account);
   const bloot = GetBloot(account);
   const totalSupply = GetTotalSupply();
+  const totalMigrated = GetTotalMigrate(simpleContractAddressOld);
   const oldTotalSupply = GetOldTotalSupply();
   const currentHonorary = GetCurrentHonorary();
   const { state, send: safeMint } = useContractMethod("requestNewBloot");
@@ -37,6 +39,7 @@ export default function Mint() {
   const [myBloot, setMyBloot] = useState(0);
   const [myCurrentHonorary, setMyCurrentHonorary] = useState(0);
   const [donateType, setDonateType] = useState("1");
+  const [mytotalMigrated, setMyTotalMigrated] = useState(0);
   const originalHonorary = 63;
   // const [showLoading, setShowLoading] = useState(false);
   const toast = useToast();
@@ -44,6 +47,10 @@ export default function Mint() {
   useEffect(() => {
     setMyBalance(balance ? balance.toNumber() : 0);
   }, [balance]);
+
+  useEffect(() => {
+    setMyTotalMigrated(totalMigrated ? totalMigrated.toNumber() : 0);
+  }, [totalMigrated]);
 
   useEffect(() => {
     setMyTotalSupply(totalSupply ? totalSupply.toNumber() : 0);
@@ -169,12 +176,11 @@ export default function Mint() {
         You own {myBloot} Bloots. You can mint {myBloot * 2} Elves
         </Text>
         ) : '') : ''}
-      <Button colorScheme="teal" size="lg" marginTop="5" onClick={handleMint} disabled={account ? false : true} width="25%">
+      <Button style={{backgroundColor:"#04ff00"}} size="lg" marginTop="5" onClick={handleMint} disabled={account ? false : true} width="25%">
         Mint New Elf
       </Button>
       <Text color="white" fontSize="2xl" marginTop="2px">
-        {(myTotalSupply + myOldTotalSupply)}/5000
-        {/* {totalSupply ? totalSupply.toNumber() : 0}/5000 */}
+        {(myTotalSupply + myOldTotalSupply - mytotalMigrated)}/5000
       </Text>
       <RadioGroup color="white" marginTop="10" marginBottom="50" defaultValue="1" value={donateType} onChange={setDonateType}>
         <Stack spacing={5} direction="column">
@@ -184,9 +190,6 @@ export default function Mint() {
           <Radio value="4">Donate 0.5eth for status of Honorary Elf ({(originalHonorary + myCurrentHonorary)}/100)</Radio>
         </Stack>
       </RadioGroup>
-      {/* <div style={showLoading? undefined: divStyle}>
-        <ReactLoading type="spinningBubbles" color="#ffffff" height={80} width={80} />
-      </div> */}
     </Flex>
   );
 }

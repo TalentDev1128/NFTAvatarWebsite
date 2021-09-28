@@ -20,7 +20,7 @@ function App() {
             <Tab width="34%" style={{boxShadow: "none", color: "#2bb04f"}}><Text color="#04ff00" fontSize="2xl">Guide</Text></Tab>
           </TabList>
 
-          <TabPanels>
+          <TabPanels backgroundColor="#1a202c">
             <TabPanel>
               <Image src="/Blootelves_logo website.png" alt="Blootelves_logo" style={{margin:"auto auto 5px", width: "200px"}}/>
               <div style={{width: '100', display: 'flex', justifyContent: 'center'}}>
