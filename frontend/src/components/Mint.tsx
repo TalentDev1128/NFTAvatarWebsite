@@ -16,10 +16,14 @@ import {
   GetTotalSupply,
   GetOldTotalSupply,
   GetBalance,
+  GetCurrentFreeMint,
+  GetCurrentDonated001,
+  GetCurrentDonated004,
   GetCurrentHonorary,
+  IsPausedMint,
   GetBloot,
   useContractMethod,
-  GetTotalMigrate
+  GetTotalMigrate,
 } from "../hooks";
 import { simpleContractAddressOld } from "../contracts";
 
@@ -31,22 +35,37 @@ export default function Mint() {
   const totalSupply = GetTotalSupply();
   const totalMigrated = GetTotalMigrate(simpleContractAddressOld);
   const oldTotalSupply = GetOldTotalSupply();
+  const currentFreeMint = GetCurrentFreeMint();
+  const currentDonated001 = GetCurrentDonated001();
+  const currentDonated004 = GetCurrentDonated004();
   const currentHonorary = GetCurrentHonorary();
+  const isPaused = IsPausedMint();
   const { state, send: safeMint } = useContractMethod("requestNewBloot");
   const [myTotalSupply, setMyTotalSupply] = useState(0);
   const [myOldTotalSupply, setMyOldTotalSupply] = useState(0);
   const [myBalance, setMyBalance] = useState(0);
   const [myBloot, setMyBloot] = useState(0);
+  const [myCurrentFreeMint, setMyCurrentFreeMint] = useState(0);
+  const [myCurrentDonated001, setMyCurrentDonated001] = useState(0);
+  const [myCurrentDonated004, setMyCurrentDonated004] = useState(0);
   const [myCurrentHonorary, setMyCurrentHonorary] = useState(0);
+  const [myMintPaused, setMyMintPaused] = useState(false);
   const [donateType, setDonateType] = useState("1");
   const [mytotalMigrated, setMyTotalMigrated] = useState(0);
-  const originalHonorary = 63;
+  const originalFreeMint = 803;
+  const originalDonated001 = 492;
+  const originalDonated004 = 127;
+  const originalHonorary = 62;
   // const [showLoading, setShowLoading] = useState(false);
   const toast = useToast();
 
   useEffect(() => {
     setMyBalance(balance ? balance.toNumber() : 0);
   }, [balance]);
+
+  useEffect(() => {
+    setMyMintPaused(isPaused ? isPaused : false);
+  }, [isPaused]);
 
   useEffect(() => {
     setMyTotalMigrated(totalMigrated ? totalMigrated.toNumber() : 0);
@@ -64,6 +83,18 @@ export default function Mint() {
     setMyBloot(bloot ? bloot.toNumber() : 0);
   }, [bloot]);
 
+  useEffect(() => {
+    setMyCurrentFreeMint(currentFreeMint ? currentFreeMint.toNumber() : 0);
+  }, [currentFreeMint]);
+
+  useEffect(() => {
+    setMyCurrentDonated001(currentDonated001 ? currentDonated001.toNumber() : 0);
+  }, [currentDonated001]);
+
+  useEffect(() => {
+    setMyCurrentDonated004(currentDonated004 ? currentDonated004.toNumber() : 0);
+  }, [currentDonated004]);
+  
   useEffect(() => {
     setMyCurrentHonorary(currentHonorary ? currentHonorary.toNumber() : 0);
   }, [currentHonorary]);
@@ -161,7 +192,7 @@ export default function Mint() {
           }}
         >
           {Array.from(Array(myBalance).keys()).map((index) => {
-            return <NFTImage account={account} index={index}/>
+            return <NFTImage account={account} index={index} key={index}/>
           })}
         </Box>
         ) : (
@@ -176,17 +207,26 @@ export default function Mint() {
         You own {myBloot} Bloots. You can mint {myBloot * 2} Elves
         </Text>
         ) : '') : ''}
-      <Button style={{backgroundColor:"#04ff00"}} size="lg" marginTop="5" onClick={handleMint} disabled={account ? false : true} width="25%">
+      <Button style={{backgroundColor:"#04ff00"}} size="lg" marginTop="5" onClick={handleMint} disabled={account ? (myMintPaused ? true: false) : true} width="25%">
         Mint New Elf
       </Button>
       <Text color="white" fontSize="2xl" marginTop="2px">
         {(myTotalSupply + myOldTotalSupply - mytotalMigrated)}/5000
       </Text>
+      {myMintPaused ? (
+        <Text color="red" fontSize="2xl" marginTop="2px">
+          Minting is: Paused
+        </Text>
+      ) : (
+        <Text color="#03f303" fontSize="2xl" marginTop="2px">
+          Minting is: Live
+        </Text>
+      )}
       <RadioGroup color="white" marginTop="10" marginBottom="50" defaultValue="1" value={donateType} onChange={setDonateType}>
         <Stack spacing={5} direction="column">
-          <Radio value="1">Free Mint</Radio>
-          <Radio value="2">Donate 0.01eth for 50% chance of rarer traits</Radio>
-          <Radio value="3">Donate 0.04eth for cameo of your Elves in future content</Radio>
+          <Radio value="1">Free Mint ({(originalFreeMint + myCurrentFreeMint)}/2600)</Radio>
+          <Radio value="2">Donate 0.01eth for 50% chance of rarer traits ({(originalDonated001 + myCurrentDonated001)}/2000)</Radio>
+          <Radio value="3">Donate 0.04eth for cameo of your Elves in future content ({(originalDonated004 + myCurrentDonated004)}/300)</Radio>
           <Radio value="4">Donate 0.5eth for status of Honorary Elf ({(originalHonorary + myCurrentHonorary)}/100)</Radio>
         </Stack>
       </RadioGroup>
