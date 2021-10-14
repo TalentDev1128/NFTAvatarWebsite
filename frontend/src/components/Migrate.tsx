@@ -181,9 +181,12 @@ export default function Migrate() {
       <Button style={{backgroundColor:"#04ff00"}} size="lg" marginTop="5" onClick={handleApprove} disabled={account ? (myIsApproved ? true : (myMigrationPaused ? true: false)) : true} width="25%">
         Authorize (only once)
       </Button>
-      <Button style={{backgroundColor:"#04ff00"}} size="lg" marginTop="5" marginBottom="10" onClick={handleMigrate} disabled={account ? (myMigrate > 0 ? (myIsApproved ? (myMigrationPaused ? true: false) : true) : true) : true} width="25%">
+      <Button style={{backgroundColor:"#04ff00"}} size="lg" marginTop="5" marginBottom="2" onClick={handleMigrate} disabled={account ? (myMigrate > 0 ? (myIsApproved ? (myMigrationPaused ? true: false) : true) : true) : true} width="25%">
         Burn & Migrate
       </Button>
+      <Text color="#666666" fontSize="18px" marginBottom="10px">
+      One elf per transaction, chosen at random
+      </Text>
       {myMigrationPaused ? (
         <Text color="red" fontSize="2xl" marginTop="2px">
           Migration is: Paused

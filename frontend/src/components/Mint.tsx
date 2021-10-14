@@ -222,7 +222,7 @@ export default function Mint() {
           Minting is: Live
         </Text>
       )}
-      <RadioGroup color="white" marginTop="10" marginBottom="50" defaultValue="1" value={donateType} onChange={setDonateType}>
+      <RadioGroup color="white" marginTop="10" marginBottom="30" defaultValue="1" value={donateType} onChange={setDonateType}>
         <Stack spacing={5} direction="column">
           <Radio value="1">Free Mint ({(originalFreeMint + myCurrentFreeMint)}/2600)</Radio>
           <Radio value="2">Donate 0.01eth for 50% chance of rarer traits ({(originalDonated001 + myCurrentDonated001)}/2000)</Radio>
@@ -230,6 +230,9 @@ export default function Mint() {
           <Radio value="4">Donate 0.5eth for status of Honorary Elf ({(originalHonorary + myCurrentHonorary)}/100)</Radio>
         </Stack>
       </RadioGroup>
+      <Text color="#666666" fontSize="22px">
+      Total elves migrated: {mytotalMigrated - 3} / 1484
+      </Text>
     </Flex>
   );
 }
