@@ -15,32 +15,32 @@ import { useEthers } from "@usedapp/core";
 import {
   GetTotalSupply,
   GetOldTotalSupply,
-  GetBalance,
+  GetElvesBalance,
   GetCurrentFreeMint,
   GetCurrentDonated001,
   GetCurrentDonated004,
   GetCurrentHonorary,
   IsPausedMint,
   GetBloot,
-  useContractMethod,
+  useElvesContractMethod,
   GetTotalMigrate,
 } from "../hooks";
-import { simpleContractAddressOld } from "../contracts";
+import { blootContractAddress } from "../contracts";
 
 export default function Mint() {
 
   const { account } = useEthers();
-  const balance = GetBalance(account);
+  const balance = GetElvesBalance(account);
   const bloot = GetBloot(account);
   const totalSupply = GetTotalSupply();
-  const totalMigrated = GetTotalMigrate(simpleContractAddressOld);
+  const totalMigrated = GetTotalMigrate(blootContractAddress);
   const oldTotalSupply = GetOldTotalSupply();
   const currentFreeMint = GetCurrentFreeMint();
   const currentDonated001 = GetCurrentDonated001();
   const currentDonated004 = GetCurrentDonated004();
   const currentHonorary = GetCurrentHonorary();
   const isPaused = IsPausedMint();
-  const { state, send: safeMint } = useContractMethod("requestNewBloot");
+  const { state, send: safeMint } = useElvesContractMethod("requestNewBloot");
   const [myTotalSupply, setMyTotalSupply] = useState(0);
   const [myOldTotalSupply, setMyOldTotalSupply] = useState(0);
   const [myBalance, setMyBalance] = useState(0);
@@ -56,7 +56,6 @@ export default function Mint() {
   const originalDonated001 = 492;
   const originalDonated004 = 127;
   const originalHonorary = 62;
-  // const [showLoading, setShowLoading] = useState(false);
   const toast = useToast();
 
   useEffect(() => {
@@ -203,11 +202,11 @@ export default function Mint() {
         {account ? (myBalance ? '' : 'You own ' + myBloot + ' Bloots. You can mint ' + (myBloot * 2) + ' Elves') : 'Please connect your wallet'}
       </Text>
       {account ? (myBalance ? (
-        <Text color="white" fontSize="2xl" marginTop="5px">
+        <Text color="white" fontSize="2xl" marginTop="5px" textAlign="center">
         You own {myBloot} Bloots. You can mint {myBloot * 2} Elves
         </Text>
         ) : '') : ''}
-      <Button style={{backgroundColor:"#04ff00"}} size="lg" marginTop="5" onClick={handleMint} disabled={account ? (myMintPaused ? true: false) : true} width="25%">
+      <Button style={{backgroundColor:"#04ff00"}} size="lg" marginTop="5" onClick={handleMint} disabled={account ? (myMintPaused ? true: false) : true} width={["50%", "25%"]}>
         Mint New Elf
       </Button>
       <Text color="white" fontSize="2xl" marginTop="2px">

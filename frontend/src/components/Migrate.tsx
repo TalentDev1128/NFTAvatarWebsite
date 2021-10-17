@@ -8,28 +8,26 @@ import {
 import { useEthers } from "@usedapp/core";
 import ReactLoading from 'react-loading';
 import {
-  useContractMethod, useOldContractMethod, IsApprovedForAll, GetBalance, GetOldTokenURI, GetTotalMigrate, GetOldTokenOfOwnerByIndex, IsPausedMigration
+  useElvesContractMethod, useBlootContractMethod, IsApprovedForAll, GetTotalMigrate, GetBlootTokenOfOwnerByIndex, IsPausedMigration
 } from "../hooks";
-import { simpleContractAddress } from "../contracts";
+import { elvesContractAddress } from "../contracts";
 
-import { fetchAttributes, checkInvalidTraits, getOldIDs, saveMigrateSuccess } from "../services/Metadata";
+import { getOldIDs, saveMigrateSuccess } from "../services/Metadata";
 
 export default function Migrate() {
 
   const { account } = useEthers();
   const balanceMigrate = GetTotalMigrate(account);
-  const { state: migrateState, send: migrate } = useContractMethod("migrate");
-  const { state: approvalState, send: setApprovalForAll } = useOldContractMethod("setApprovalForAll");
-  const tokenID = GetOldTokenOfOwnerByIndex(account);
-  const isApproved = IsApprovedForAll(account, simpleContractAddress);
+  const { state: migrateState, send: migrate } = useElvesContractMethod("migrate");
+  const { state: approvalState, send: setApprovalForAll } = useBlootContractMethod("setApprovalForAll");
+  const tokenID = GetBlootTokenOfOwnerByIndex(account);
+  const isApproved = IsApprovedForAll(account, elvesContractAddress);
   const isPaused = IsPausedMigration();
-  // const tokenURI = GetOldTokenURI(tokenID ? tokenID.toNumber() : tokenID);
   const [showLoading, setShowLoading] = useState(false);
   const [myMigrate, setMyMigrate] = useState(0);
   const [myTokenID, setMyTokenID] = useState(0);
   const [myIsApproved, setMyIsApproved] = useState(false);
   const [myMigrationPaused, setMyMigrationPaused] = useState(false);
-  // const [myTokenURI, setMyTokenURI] = useState("");
   const toast = useToast();
   const divStyle = {
     display: 'none'
@@ -50,10 +48,6 @@ export default function Migrate() {
   useEffect(() => {
     setMyTokenID(tokenID ? tokenID.toNumber() : 0);
   }, [tokenID]);
-
-  // useEffect(() => {
-  //   setMyTokenURI(tokenURI ? tokenURI : "");
-  // }, [tokenURI]);
 
   useEffect(() => {
     doPostTransaction(migrateState);
@@ -79,20 +73,6 @@ export default function Migrate() {
     }
     setShowLoading(true);
     let tokenIDs = [myTokenID];
-    // let tokenIDs = [3];
-    // const attributes = await fetchAttributes(myTokenURI);
-    // const isValidTraits = checkInvalidTraits(attributes);
-    // if (!isValidTraits) {
-    //   toast({
-    //     description: "Wait a second please. Try it again. If this message is shown more than once, please contact administrator.",
-    //     status: "warning",
-    //     duration: 3000,
-    //     position: "top-right",
-    //     isClosable: true,
-    //   });
-    //   setShowLoading(false);
-    //   return;
-    // }
     const { ids, status } = await getOldIDs(tokenIDs);
     console.log(ids);
     console.log(status);
@@ -121,7 +101,7 @@ export default function Migrate() {
       });
       return;
     }
-    await setApprovalForAll(simpleContractAddress, true);
+    await setApprovalForAll(elvesContractAddress, true);
   }
 
   function doPostTransaction(state: any) {
@@ -175,18 +155,15 @@ export default function Migrate() {
 
   return (
     <Flex direction="column" align="center" mt="4" margin="10px">
-      <Text color="white" fontSize="4xl" marginTop="5px" marginBottom="5px">
+      <Text color="white" fontSize="4xl" marginTop="5px" marginBottom="5px" textAlign="center">
         {'You have ' + myMigrate + ' elf(s) to migrate'}
       </Text>
-      <Button style={{backgroundColor:"#04ff00"}} size="lg" marginTop="5" onClick={handleApprove} disabled={account ? (myIsApproved ? true : (myMigrationPaused ? true: false)) : true} width="25%">
+      <Button style={{backgroundColor:"#04ff00"}} size="lg" marginTop="5" onClick={handleApprove} disabled={account ? (myIsApproved ? true : (myMigrationPaused ? true: false)) : true} width={["50%","25%"]}>
         Authorize (only once)
       </Button>
-      <Button style={{backgroundColor:"#04ff00"}} size="lg" marginTop="5" marginBottom="2" onClick={handleMigrate} disabled={account ? (myMigrate > 0 ? (myIsApproved ? (myMigrationPaused ? true: false) : true) : true) : true} width="25%">
+      <Button style={{backgroundColor:"#04ff00"}} size="lg" marginTop="5" marginBottom="2" onClick={handleMigrate} disabled={account ? (myMigrate > 0 ? (myIsApproved ? (myMigrationPaused ? true: false) : true) : true) : true} width={["50%","25%"]}>
         Burn & Migrate
       </Button>
-      <Text color="#666666" fontSize="18px" marginBottom="10px">
-      One elf per transaction, chosen at random
-      </Text>
       {myMigrationPaused ? (
         <Text color="red" fontSize="2xl" marginTop="2px">
           Migration is: Paused

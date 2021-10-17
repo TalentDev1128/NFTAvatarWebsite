@@ -4,6 +4,7 @@ import Layout from "./components/Layout";
 import ConnectButton from "./components/ConnectButton";
 import Mint from "./components/Mint";
 import Migrate from "./components/Migrate";
+import Claim from "./components/Claim";
 import Guide from "./components/Guide";
 import "@fontsource/inter";
 
@@ -17,6 +18,7 @@ function App() {
           <TabList>
             <Tab width="33%" style={{boxShadow: "none", color: "#2bb04f"}}><Text color="#04ff00" fontSize="2xl">Mint</Text></Tab>
             <Tab width="33%" style={{boxShadow: "none", color: "#2bb04f"}}><Text color="#04ff00" fontSize="2xl">Migrate</Text></Tab>
+            <Tab width="33%" style={{boxShadow: "none", color: "#2bb04f"}}><Text color="#04ff00" fontSize="2xl">Claim</Text></Tab>
             <Tab width="34%" style={{boxShadow: "none", color: "#2bb04f"}}><Text color="#04ff00" fontSize="2xl">Guide</Text></Tab>
           </TabList>
 
@@ -34,6 +36,13 @@ function App() {
                 <ConnectButton handleOpenModal={onOpen} />
               </div>
               <Migrate />
+            </TabPanel>
+            <TabPanel>
+              <Image src="/Blootelves_logo website.png" alt="Blootelves_logo" style={{margin:"auto auto 5px", width: "200px"}}/>
+              <div style={{width: '100', display: 'flex', justifyContent: 'center'}}>
+                <ConnectButton handleOpenModal={onOpen} />
+              </div>
+              <Claim />
             </TabPanel>
             <TabPanel>
               <Guide />
