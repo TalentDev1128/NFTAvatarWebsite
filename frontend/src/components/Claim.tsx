@@ -179,7 +179,7 @@ export default function Claim() {
         You need to be in the respective whitelists to be able to claim
       </Text>
       <Text color="white" fontSize="4xl" marginTop="5px" textAlign="center">
-        You own {myBalance} derivatives.
+        You claimed {myBalance} derivatives.
       </Text>
       <Box
         overflowX="auto"
