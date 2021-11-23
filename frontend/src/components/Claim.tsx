@@ -6,18 +6,22 @@ import {
   useToast,
   Image,
   Link,
-  Box
+  Box,
 } from "@chakra-ui/react";
-import { ExternalLinkIcon } from '@chakra-ui/icons'
+import { ExternalLinkIcon } from "@chakra-ui/icons";
 import { useEthers } from "@usedapp/core";
 import ClaimImage from "./ClaimImage";
 import { utils } from "ethers";
 import {
-  useDerivativeContractMethod, GetDerivativeBalance, GetDerivativesToClaim, IsPausedClaimingToy, IsPausedClaimingPainting, IsPausedClaimingStatteute
+  useDerivativeContractMethod,
+  GetDerivativeBalance,
+  GetDerivativesToClaim,
+  IsPausedClaimingToy,
+  IsPausedClaimingPainting,
+  IsPausedClaimingStatteute,
 } from "../hooks";
 
 export default function Claim() {
-
   const { account } = useEthers();
   const balance = GetDerivativeBalance(account);
   const toyBalance = GetDerivativesToClaim(account, 1);
@@ -30,9 +34,11 @@ export default function Claim() {
   const toast = useToast();
 
   const [myBalance, setMyBalance] = useState(0);
+  const [myRealBalance, setMyRealBalance] = useState(0);
   const [myToy, setMyToy] = useState(0);
   const [myPainting, setMyPainting] = useState(0);
   const [myStatteute, setMyStatteute] = useState(0);
+  const [tokenIDs, setTokenIDs] = useState<number[]>([]);
 
   // const [myIsPausedClaimingToy, setMyIsPausedClaimingToy] = useState(false);
   // const [myIsPausedClaimingPainting, setMyIsPausedClaimingPainting] = useState(false);
@@ -81,9 +87,9 @@ export default function Claim() {
           position: "top-right",
           isClosable: true,
         });
-      break;
+        break;
       case "None":
-      break;
+        break;
       case "Mining":
         msg = "Claiming now";
         toast({
@@ -93,7 +99,7 @@ export default function Claim() {
           position: "top-right",
           isClosable: true,
         });
-      break;
+        break;
       case "Fail":
         msg = "Claiming transaction failed";
         toast({
@@ -103,9 +109,10 @@ export default function Claim() {
           position: "top-right",
           isClosable: true,
         });
-      break;
+        break;
       case "Exception":
-        msg = "Failed. Note: You need to be in the respective whitelists to be able to claim";
+        msg =
+          "Failed. Note: You need to be in the respective whitelists to be able to claim";
         toast({
           description: msg,
           status: "warning",
@@ -113,73 +120,195 @@ export default function Claim() {
           position: "top-right",
           isClosable: true,
         });
-      break;
+        break;
     }
   }
 
+  const appendTokenIDs = (newTokenID: any) => {
+    if (tokenIDs.filter((e: any) => e === newTokenID).length === 0) {
+      tokenIDs.push(newTokenID);
+      setTokenIDs(tokenIDs);
+      setMyRealBalance((prevBalance) => prevBalance + 1);
+    }
+  };
+
   return (
     <Flex direction="column" align="center" mt="4" margin="10px">
-      <Flex direction={["column", "column", "row"]} align="center" mt="4" margin="10px">
-        <Flex direction="column" align="center" mt="4" marginLeft="50px" marginRight="50px">
-          <Image src="/toy.png" alt="toy image" width="200px" height="200px" marginBottom="5px" />
+      <Flex
+        direction={["column", "column", "row"]}
+        align="center"
+        mt="4"
+        margin="10px"
+      >
+        <Flex
+          direction="column"
+          align="center"
+          mt="4"
+          marginLeft="50px"
+          marginRight="50px"
+        >
+          <Image
+            src="/toy.png"
+            alt="toy image"
+            width="200px"
+            height="200px"
+            marginBottom="5px"
+          />
           {isPausedClaimingToy ? (
             <Text color="red" fontSize="2xl" marginTop="2px">
               Toy claiming is: Paused
             </Text>
-          ): (
+          ) : (
             <Text color="#03f303" fontSize="2xl" marginTop="2px">
               Toy claiming is: Live
             </Text>
-          )}          
-          <Button style={{backgroundColor:"#04ff00"}} size="lg" marginTop="5" marginBottom="5" onClick={() => handleClaim(1, myToy)} disabled={account ? (myToy > 0 ? (!isPausedClaimingToy ? false : true) : true) : true} width="100%">
+          )}
+          <Button
+            style={{ backgroundColor: "#04ff00" }}
+            size="lg"
+            marginTop="5"
+            marginBottom="5"
+            onClick={() => handleClaim(1, myToy)}
+            disabled={
+              account
+                ? myToy > 0
+                  ? !isPausedClaimingToy
+                    ? false
+                    : true
+                  : true
+                : true
+            }
+            width="100%"
+          >
             Claim {myToy} toy
           </Button>
-          <Link href="https://opensea.io/collection/mypfpland" isExternal color="#ece70a" style={{boxShadow: "none"}}>
+          <Link
+            href="https://opensea.io/collection/mypfpland"
+            isExternal
+            color="#ece70a"
+            style={{ boxShadow: "none" }}
+          >
             View on OpenSea <ExternalLinkIcon mx="2px" />
           </Link>
         </Flex>
-        <Flex direction="column" align="center" mt="4" marginLeft="50px" marginRight="50px">
-          <Image src="/painting.png" alt="painting image" width="200px" height="200px" marginBottom="5px"/>
+        <Flex
+          direction="column"
+          align="center"
+          mt="4"
+          marginLeft="50px"
+          marginRight="50px"
+        >
+          <Image
+            src="/painting.png"
+            alt="painting image"
+            width="200px"
+            height="200px"
+            marginBottom="5px"
+          />
           {isPausedClaimingPainting ? (
             <Text color="red" fontSize="2xl" marginTop="2px" textAlign="center">
               Painting claiming is: Paused
             </Text>
-          ): (
-            <Text color="#03f303" fontSize="2xl" marginTop="2px" textAlign="center">
+          ) : (
+            <Text
+              color="#03f303"
+              fontSize="2xl"
+              marginTop="2px"
+              textAlign="center"
+            >
               Honorary claiming is: Live
             </Text>
           )}
-          <Button style={{backgroundColor:"#04ff00"}} size="lg" marginTop="5" marginBottom="5" onClick={() => handleClaim(2, myPainting)} disabled={account ? (myPainting > 0 ? (!isPausedClaimingPainting ? false : true) : true) : true} width="100%">
+          <Button
+            style={{ backgroundColor: "#04ff00" }}
+            size="lg"
+            marginTop="5"
+            marginBottom="5"
+            onClick={() => handleClaim(2, myPainting)}
+            disabled={
+              account
+                ? myPainting > 0
+                  ? !isPausedClaimingPainting
+                    ? false
+                    : true
+                  : true
+                : true
+            }
+            width="100%"
+          >
             Claim {myPainting} Honorary
           </Button>
-          <Link href="https://opensea.io/collection/mypfpland" isExternal color="#ece70a" style={{boxShadow: "none"}}>
+          <Link
+            href="https://opensea.io/collection/mypfpland"
+            isExternal
+            color="#ece70a"
+            style={{ boxShadow: "none" }}
+          >
             View on OpenSea <ExternalLinkIcon mx="2px" />
           </Link>
         </Flex>
-        <Flex direction="column" align="center" mt="4" marginLeft="50px" marginRight="50px">
-        <Image src="/statteute.png" alt="statteute image" width="200px" height="200px" marginBottom="5px"/>
+        <Flex
+          direction="column"
+          align="center"
+          mt="4"
+          marginLeft="50px"
+          marginRight="50px"
+        >
+          <Image
+            src="/statteute.png"
+            alt="statteute image"
+            width="200px"
+            height="200px"
+            marginBottom="5px"
+          />
           {isPausedClaimingStatteute ? (
             <Text color="red" fontSize="2xl" marginTop="2px" textAlign="center">
               Statuette claiming is: Paused
             </Text>
-          ): (
-            <Text color="#03f303" fontSize="2xl" marginTop="2px" textAlign="center">
+          ) : (
+            <Text
+              color="#03f303"
+              fontSize="2xl"
+              marginTop="2px"
+              textAlign="center"
+            >
               Zen Elf claiming is: Live
             </Text>
           )}
-          <Button style={{backgroundColor:"#04ff00"}} size="lg" marginTop="5" marginBottom="5" onClick={() => handleClaim(3, myStatteute)} disabled={account ? (myStatteute > 0 ? (!isPausedClaimingStatteute ? false : true) : true) : true} width="100%">
+          <Button
+            style={{ backgroundColor: "#04ff00" }}
+            size="lg"
+            marginTop="5"
+            marginBottom="5"
+            onClick={() => handleClaim(3, myStatteute)}
+            disabled={
+              account
+                ? myStatteute > 0
+                  ? !isPausedClaimingStatteute
+                    ? false
+                    : true
+                  : true
+                : true
+            }
+            width="100%"
+          >
             Claim {myStatteute} Zen Elf
           </Button>
-          <Link href="https://opensea.io/collection/mypfpland" isExternal color="#ece70a" style={{boxShadow: "none"}}>
+          <Link
+            href="https://opensea.io/collection/mypfpland"
+            isExternal
+            color="#ece70a"
+            style={{ boxShadow: "none" }}
+          >
             View on OpenSea <ExternalLinkIcon mx="2px" />
           </Link>
-        </Flex>        
+        </Flex>
       </Flex>
       <Text color="#666666" fontSize="2xl" marginTop="5px" textAlign="center">
         You need to be in the respective whitelists to be able to claim
       </Text>
       <Text color="white" fontSize="4xl" marginTop="5px" textAlign="center">
-        You claimed {myBalance} derivatives.
+        You claimed {myRealBalance} derivatives.
       </Text>
       <Box
         overflowX="auto"
@@ -190,20 +319,27 @@ export default function Claim() {
         pb="4px"
         px="5px"
         css={{
-          '&::-webkit-scrollbar': {
-            width: '1px',
+          "&::-webkit-scrollbar": {
+            width: "1px",
           },
-          '&::-webkit-scrollbar-track': {
-            width: '1px',
+          "&::-webkit-scrollbar-track": {
+            width: "1px",
           },
-          '&::-webkit-scrollbar-thumb': {
-            background: '#707070',
-            borderRadius: '5px',
+          "&::-webkit-scrollbar-thumb": {
+            background: "#707070",
+            borderRadius: "5px",
           },
         }}
       >
         {Array.from(Array(myBalance).keys()).map((index) => {
-          return <ClaimImage account={account} index={index} key={index}/>
+          return (
+            <ClaimImage
+              account={account}
+              index={index}
+              key={index}
+              onFoundValidTokenID={appendTokenIDs}
+            />
+          );
         })}
       </Box>
     </Flex>
